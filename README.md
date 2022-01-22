@@ -1,10 +1,12 @@
-# PukiWiki用プラグイン tinykanban.inc.php
+# PukiWiki用プラグイン<br>簡易かんばんボード tinykanban.inc.php
 
-かんばん方式の簡易ToDoリストを表示するPukiWiki用プラグイン。
+かんばん方式の簡易ToDoリストを表示するPukiWiki用プラグイン。  
 
-|名称|ファイル|対象|
-|:---:|:---:|:---:|
-|簡易かんばんボードプラグイン|./plugin/tinykanban.inc.php|1.0|PukiWiki 1.5.3, PHP7.4, UTF-8|
+
+
+|対象PukiWikiバージョン|対象PHPバージョン|
+|:---:|:---:|
+|PukiWiki 1.5.3 ~ 1.5.4RC (UTF-8)|PHP7.4 ~ PHP8.1|
 
 ## インストール
 
