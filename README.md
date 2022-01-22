@@ -1,6 +1,6 @@
 # PukiWiki用プラグイン<br>簡易かんばんボード tinykanban.inc.php
 
-かんばん方式の簡易ToDoリストを表示するPukiWiki用プラグイン。  
+かんばん方式の簡易ToDoリストを表示する[PukiWiki](https://pukiwiki.osdn.jp/)用プラグイン。  
 
 
 
@@ -39,10 +39,10 @@ tinykanban.inc.php を PukiWiki の plugin ディレクトリに配置してく�
 
 ## ご注意
 
-- 追加・編集したかんばん情報は、当プラグインを埋め込んだページに直接書き込まれます（標準commentプラグインと似た仕組み）。ページへの書き込みはバックグラウンドで行われ、衝突を無視して常に上書きします。そのため、プライベートなウィキや編集制限されたページでのご利用をお勧めします。
-- お勧めしませんが複数ユーザーで同時に編集したい場合は、定数PLUGIN_TINYKANBAN_SYNC_INTERVALに適当な同期間隔を設定してください。他ユーザーの更新内容がほぼリアルタイムに（設定した秒数の遅れで）自分の画面に反映されるため、衝突が起こりにくくなります。サーバーへの問い合わせがバックグラウンドで定期実行されるため、負荷や通信量の増加にご注意ください。
+- 追加・編集したかんばん情報は、当プラグインを埋め込んだページに直接書き込まれます（標準 comment プラグインと似た仕組み）。ページへの書き込みはバックグラウンドで行われ、衝突を無視して常に上書きします。そのため、プライベートなウィキや編集制限されたページでのご利用をお勧めします。
+- お勧めしませんが複数ユーザーで同時に編集したい場合は、定数 PLUGIN_TINYKANBAN_SYNC_INTERVAL に適当な同期間隔を設定してください。他ユーザーの更新内容がほぼリアルタイムに（設定した秒数の遅れで）自分の画面に反映されるため、衝突が起こりにくくなります。サーバーへの問い合わせがバックグラウンドで定期実行されるため、負荷や通信量の増加にご注意ください。
 - 当プラグインは１ページにつき１つだけ有効です。ページ内に複数記述した場合、２つ目以降は無視されます。
-- かんばんのドラッグ＆ドロップ操作にjQuery UIを利用しています。なお、jQuery UIはタッチ操作に対応していません（jQuery UI v1.13現在）。
+- かんばんのドラッグ＆ドロップ操作に jQuery UI を利用しています。なお、jQuery UI はタッチ操作に対応していません（jQuery UI v1.13現在）。
 
 ## 設定
 
@@ -50,9 +50,9 @@ tinykanban.inc.php を PukiWiki の plugin ディレクトリに配置してく�
 
 |定数名|値|既定値|意味|
 |:---|:---:|:---|:---|
-|PLUGIN_TINYKANBAN_JQUERY_URL|URL|'https[]()://code.jquery.com/jquery-3.6.0.min.js'|jQuery のURL（すでに読み込まれていて不要な場合は空にする）|
-|PLUGIN_TINYKANBAN_JQUERYUI_URL|URL|'https[]()://code.jquery.com/ui/1.13.0/jquery-ui.min.js'|jQuery UI のURL（すでに読み込まれていて不要な場合は空にする）|
-|PLUGIN_TINYKANBAN_ADDJS_URL|URL|''|追加 JavaScriptの URL（jQuery UI をタッチ操作に対応させるハック jquery.ui.touch-punch.js 等必要に応じて）|
+|PLUGIN_TINYKANBAN_JQUERY_URL|URL|'https[]()://code.jquery.com/jquery-3.6.0.min.js'|[jQuery](https://jquery.com/) のURL（すでに読み込まれていて不要な場合は空にする）|
+|PLUGIN_TINYKANBAN_JQUERYUI_URL|URL|'https[]()://code.jquery.com/ui/1.13.0/jquery-ui.min.js'|[jQuery UI](https://jqueryui.com/) のURL（すでに読み込まれていて不要な場合は空にする）|
+|PLUGIN_TINYKANBAN_ADDJS_URL|URL|''|追加 JavaScriptの URL（jQuery UI をタッチ操作に対応させるハック [jquery.ui.touch-punch.js](https://github.com/furf/jquery-ui-touch-punch) 等必要に応じて）|
 |PLUGIN_TINYKANBAN_DEFAULTCOLOR|HTMLカラーコード|#aabbcc|列のデフォルト色|
 |PLUGIN_TINYKANBAN_SYNC_INTERVAL|数値|0|更新同期間隔（秒）。0 なら同期しない|
 |PLUGIN_TINYKANBAN_MAXLENGTH|数値|80|かんばん名の最大文字数|
