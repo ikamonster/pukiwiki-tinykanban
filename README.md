@@ -30,6 +30,7 @@ tinykanban.inc.php を PukiWiki の plugin ディレクトリに配置してく�
 ```
 
 ## かんばんボードの操作法
+![fig1](https://user-images.githubusercontent.com/3040830/150647496-19319665-76a6-43f0-a3b5-9db077478caa.png)
 
 - ヘッダーの「＋」ボタンをクリックするとかんばんが追加されます。
 - かんばんをクリックすると名前を入力できます。
