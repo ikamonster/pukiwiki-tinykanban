@@ -1,7 +1,7 @@
 <?php
 /*
 PukiWiki - Yet another WikiWikiWeb clone.
-tinykanban.inc.php, v1.0 2022 M.Taniguchi
+tinykanban.inc.php, v1.1.0 2022 M.Taniguchi
 License: GPL v2 or (at your option) any later version
 
 簡易かんばんボードプラグイン
@@ -33,9 +33,6 @@ coumnName:Colorの組を「|」で区切って必要なだけ羅列する。必�
 ●お勧めしませんが複数ユーザーで同時に編集したい場合は、定数 PLUGIN_TINYKANBAN_SYNC_INTERVAL に適当な同期間隔を設定してください。
 　他ユーザーの更新内容がほぼリアルタイムに（設定した秒数の遅れで）自分の画面に反映されるため、衝突が起こりにくくなります。
 　サーバーへの問い合わせがバックグラウンドで定期実行されるため、負荷や通信量の増加にご注意ください。
-
-●当プラグインは1ページにつき1つだけ有効です。
-　ページ内に複数記述した場合、2つ目以降は無視されます。
 */
 
 /////////////////////////////////////////////////
@@ -47,12 +44,13 @@ if (!defined('PLUGIN_TINYKANBAN_DEFAULTCOLOR'))  define('PLUGIN_TINYKANBAN_DEFAU
 if (!defined('PLUGIN_TINYKANBAN_SYNC_INTERVAL')) define('PLUGIN_TINYKANBAN_SYNC_INTERVAL', 0);                                                    // 更新同期間隔（秒）。0なら同期しない
 if (!defined('PLUGIN_TINYKANBAN_MAXLENGTH'))     define('PLUGIN_TINYKANBAN_MAXLENGTH',     80);                                                   // かんばん名の最大文字数
 if (!defined('PLUGIN_TINYKANBAN_PROTECT'))       define('PLUGIN_TINYKANBAN_PROTECT',       1);                                                    // 1：名前が空のかんばんのみ削除できる, 0：名前付きのかんばんも削除できる
+if (!defined('PLUGIN_TINYKANBAN_ACROSS'))        define('PLUGIN_TINYKANBAN_ACROSS',        0);                                                    // 1：ページ内に複数のかんばんボード（インスタンス）があるとき、かんばんがインスタンスを跨いで移動できる, 0：かんばんがインスタンスを跨げない
 if (!defined('PLUGIN_TINYKANBAN_PUBLIC'))        define('PLUGIN_TINYKANBAN_PUBLIC',        0);                                                    // 1：編集権限のないユーザーにもかんばんの変更を許可, 0：かんばんの変更には編集権限が必須
 
 function plugin_tinykanban_convert() {
 	global	$vars;
-	static	$included = 0;
-	if ($included++ > 0) return null;
+	static	$id = 0;
+	$id++;
 
 	// 定数・引数他を取得して変数を設定
 	$page = $vars['page'];
@@ -67,6 +65,7 @@ function plugin_tinykanban_convert() {
 	$columns = htmlsc(trim($columns));
 	$page = htmlsc($page);
 	$json = (isset($json) && $json) ? str_replace('</script>', '<\/script>', htmlspecialchars_decode($json)) : '[[""]]';
+	$across = PLUGIN_TINYKANBAN_ACROSS ? '' : '[data-tinykanban-id="\' + self.id + \'"]';
 
 	// ボード要素を作成（かんばん要素は後からJavaScriptで追加）
 	$columnEles = '';
@@ -79,15 +78,18 @@ function plugin_tinykanban_convert() {
 		$color = (isset($name[1]))? htmlsc(trim($name[1])) : PLUGIN_TINYKANBAN_DEFAULTCOLOR;
 		$name = trim($name[0]);
 		$name = ($name)? htmlsc($name) : ($i + 1);
-		$lists .= ($lists ? ',' : '') . '#__TinyKanban_List_' . $i . '__';
-		$columnEles .= '<div class="__TinyKanban_Column__" data-tinykanban-column="' . $i . '"><div class="__TinyKanban_Header__">' . $name . '<button title="Add" onclick="__pluginTinyKanban__.add(' . $i . ')">&plus;</button></div><ul id="__TinyKanban_List_' . $i . '__" class="__TinyKanban_List__"></ul></div>';
-		$colorStyle .= '#__TinyKanban__ .__TinyKanban_Column__[data-tinykanban-column="' . $i . '"] .__TinyKanban_Header__{background-color:' . $color . "}\n";
-		$colorStyle .= '#__TinyKanban__ .__TinyKanban_Column__[data-tinykanban-column="' . $i . '"] li{background:linear-gradient(to right,' . $color . ',' . $color . " 12px,var(--TinyKanban-kanban-bg-color) 12px,var(--TinyKanban-kanban-bg-color) 100%)}\n";
+		$lists .= ($lists ? ',' : '') . '#__TinyKanban_' . $id . '__ ul.__TinyKanban_List__';
+		$columnEles .= '<div class="__TinyKanban_Column__" data-tinykanban-column="' . $i . '"><div class="__TinyKanban_Header__">' . $name . '<button title="Add" onclick="__pluginTinyKanban_' . $id . '__.add(' . $i . ')">&plus;</button></div><ul class="__TinyKanban_List__" data-tinykanban-id="' . $id . '" data-tinykanban-list="' . $i . '" style="margin:0;padding:0"></ul></div>';
+		$colorStyle .= '#__TinyKanban_' . $id . '__ .__TinyKanban_Column__[data-tinykanban-column="' . $i . '"] .__TinyKanban_Header__{background-color:' . $color . "}\n";
+		$colorStyle .= '#__TinyKanban_' . $id . '__ .__TinyKanban_Column__[data-tinykanban-column="' . $i . '"] li{background:linear-gradient(to right,' . $color . ',' . $color . " 12px,var(--TinyKanban-kanban-bg-color) 12px,var(--TinyKanban-kanban-bg-color) 100%)}\n";
 	}
 
-	// スタイルを定義
-	$body = <<<EOT
-<div class="__TinyKanban__" id="__TinyKanban__">
+	$body = '<div class="__TinyKanban__" id="__TinyKanban_' . $id . '__">' . "\n";
+
+	// 初回のみ挿入
+	if ($id == 1) {
+		// スタイルを定義
+		$body .= <<<EOT
 <style>
 :root {
 	--TinyKanban-board-bg-color: rgba(128,128,128,.07);	/* ボード背景色 */
@@ -102,10 +104,10 @@ function plugin_tinykanban_convert() {
 	--TinyKanban-kanban-margin: 4px; /* かんばん間隔 */
 	--TinyKanban-corner-radius: 5px; /* 角丸半径 */
 	--TinyKanban-shadow: 0 0 1px rgba(0,0,0,.13), 0 1px 3px rgba(0,0,0,.2); /* 影 */
-	--TinyKanban-transition-fadein: 17ms; /* フェードイン時間 */
-	--TinyKanban-transition-fadeout: 125ms; /* フェードアウト時間 */
+	--TinyKanban-transition-fadein: 17ms; /* UIフェードイン時間 */
+	--TinyKanban-transition-fadeout: 125ms; /* UIフェードアウト時間 */
 }
-#__TinyKanban__ {
+.__TinyKanban__ {
 	position: relative;
 	display: flex;
 	justify-content: space-between;
@@ -122,7 +124,7 @@ function plugin_tinykanban_convert() {
 	-webkit-touch-callout: none;
 }
 .ui-draggable, .ui-droppable {background-position:top}
-#__TinyKanban__ .__TinyKanban_Column__, #__TinyKanban__ .__TinyKanban_Column__:first-child, #__TinyKanban__ .__TinyKanban_Column__:last-child {
+.__TinyKanban_Column__, .__TinyKanban_Column__:first-child, .__TinyKanban_Column__:last-child {
 	position: relative;
 	display: flex;
 	flex-direction: column;
@@ -137,9 +139,9 @@ function plugin_tinykanban_convert() {
 	flex: 0 100 100%;
 	background: var(--TinyKanban-board-bg-color);
 }
-#__TinyKanban__ .__TinyKanban_Column__:first-child {margin-left:0}
-#__TinyKanban__ .__TinyKanban_Column__:last-child {margin-right:0}
-#__TinyKanban__ .__TinyKanban_Header__ {
+.__TinyKanban_Column__:first-child {margin-left:0}
+.__TinyKanban_Column__:last-child {margin-right:0}
+.__TinyKanban_Header__ {
 	position: sticky;
 	top: 0;
 	color: var(--TinyKanban-header-color);
@@ -155,7 +157,7 @@ function plugin_tinykanban_convert() {
 	box-sizing: border-box;
 	z-index: 1;
 }
-#__TinyKanban__ button {
+.__TinyKanban__ button {
 	position: absolute;
 	top: calc(50% - 10px);
 	width: 20px;
@@ -182,10 +184,10 @@ function plugin_tinykanban_convert() {
 	box-shadow: var(--TinyKanban-shadow);
 	transition: opacity var(--TinyKanban-transition-fadeout);
 }
-#__TinyKanban__ .__TinyKanban_Header__ button {
+.__TinyKanban_Header__ button {
 	right: 6px;
 }
-#__TinyKanban__ ul.__TinyKanban_List__ {
+ul.__TinyKanban_List__ {
 	width: 100%;
 	height: 100%;
 	flex: 0 100 100%;
@@ -195,19 +197,19 @@ function plugin_tinykanban_convert() {
 	box-sizing: border-box;
 	overflow: auto;
 }
-#__TinyKanban__ .__TinyKanban_List__::-webkit-scrollbar {
+.__TinyKanban_List__::-webkit-scrollbar {
 	width: 5px;
 	border: 0 none;
 	box-sizing: border-box;
 	padding: 0;
 	margin: 0;
 }
-#__TinyKanban__ .__TinyKanban_List__::-webkit-scrollbar-track {background:transparent}
-#__TinyKanban__ .__TinyKanban_List__::-webkit-scrollbar-thumb {
+.__TinyKanban_List__::-webkit-scrollbar-track {background:transparent}
+.__TinyKanban_List__::-webkit-scrollbar-thumb {
 	background: rgba(128,128,128,.25);
 	border-radius: 2px;
 }
-#__TinyKanban__ ul.__TinyKanban_List__ > li {
+ul.__TinyKanban_List__ > li {
 	position: relative;
 	font-size: var(--TinyKanban-kanban-font-size);
 	line-height: 1em;
@@ -222,7 +224,7 @@ function plugin_tinykanban_convert() {
 	background: linear-gradient(to right, #808080, #808080 12px, var(--TinyKanban-kanban-bg-color) 12px, var(--TinyKanban-kanban-bg-color) 100%);
 	box-shadow: var(--TinyKanban-shadow);
 }
-#__TinyKanban__ ul.__TinyKanban_List__ > li input, #__TinyKanban__ ul.__TinyKanban_List__ > li input:disabled {
+ul.__TinyKanban_List__ > li input, ul.__TinyKanban_List__ > li input:disabled {
 	font-family: var(--TinyKanban-kanban-font);
 	font-size: var(--TinyKanban-kanban-font-size);
 	font-feature-settings: 'palt' 1;
@@ -237,43 +239,49 @@ function plugin_tinykanban_convert() {
 	border-radius: 3px;
 	transition: background-color var(--TinyKanban-transition-fadeout);
 }
-#__TinyKanban__ ul.__TinyKanban_List__ > li input::placeholder {color:rgba(128,128,128,.333)}
-#__TinyKanban__ ul.__TinyKanban_List__ > li button {
+ul.__TinyKanban_List__ > li input::placeholder {color:rgba(128,128,128,.333)}
+ul.__TinyKanban_List__ > li button {
 	right: 2px;
 	margin: 0 0 0 2px;
 }
-${colorStyle}
 EOT;
 
-	// 編集権限ありならUIをインタラクティブに
-	if (!$readOnly) {
-		$body .=<<<EOT
-#__TinyKanban__ .__TinyKanban_Column__:hover .__TinyKanban_Header__ button {opacity:1; transition:opacity var(--TinyKanban-transition-fadein)}
-#__TinyKanban__ .__TinyKanban_Column__ .__TinyKanban_Header__ button:hover {background-color:#fff; color:#000; cursor:pointer}
-#__TinyKanban__ ul.__TinyKanban_List__ > li:hover {cursor:grab}
-#__TinyKanban__ ul.__TinyKanban_List__ > li input:hover {background-color:rgba(128,128,128,.07); transition:background-color var(--TinyKanban-transition-fadein)}
-#__TinyKanban__ ul.__TinyKanban_List__ > li:hover button {opacity:1; transition:opacity var(--TinyKanban-transition-fadein)}
-#__TinyKanban__ ul.__TinyKanban_List__ > li button:hover {color:#000; cursor:pointer; transition:color var(--TinyKanban-transition-fadein)}
+		// 編集権限ありならUIをインタラクティブに
+		if (!$readOnly) {
+			$body .=<<<EOT
+.__TinyKanban_Column__:hover .__TinyKanban_Header__ button {opacity:1; transition:opacity var(--TinyKanban-transition-fadein)}
+.__TinyKanban_Column__ .__TinyKanban_Header__ button:hover {background-color:#fff; color:#000; cursor:pointer}
+ul.__TinyKanban_List__ > li:hover {cursor:grab}
+ul.__TinyKanban_List__ > li input:hover {background-color:rgba(128,128,128,.07); transition:background-color var(--TinyKanban-transition-fadein)}
+ul.__TinyKanban_List__ > li:hover button {opacity:1; transition:opacity var(--TinyKanban-transition-fadein)}
+ul.__TinyKanban_List__ > li button:hover {color:#000; cursor:pointer; transition:color var(--TinyKanban-transition-fadein)}
 EOT;
-	}
+		}
 
-	// 定数に応じて調整
-	if (PLUGIN_TINYKANBAN_PROTECT) $body .= "#__TinyKanban__ ul.__TinyKanban_List__ > li.__TinyKanban_Protected__ button {display:none}\n";
+		// 定数に応じて調整
+		if (PLUGIN_TINYKANBAN_PROTECT) $body .= "ul.__TinyKanban_List__ > li.__TinyKanban_Protected__ button {display:none}\n";
 
-	// JavaScript
-	$body .= <<<EOT
+		// JavaScript
+		$body .= <<<EOT
 </style>
 ${jqueryUrl}
 <script>
 'use strict';
 
-var	__TinyKanban__ = function() {
+// コンストラクタ
+var	__TinyKanban__ = function(id, columns, sortableEles, json, obj) {
 	const	self = this;
+	this.id = id;
 	this.readOnly = '${readOnly}';
 	this.filetime = ${filetime};
 	this.postTimer = null;
+	this.columns = columns;
+	this.sortableEles = sortableEles;
+	this.data = json;
 	this.getTimer = null;
-	this.data = null;
+	this.getHandlers = [];
+	if (obj) obj.addGetHandler(this);
+	else this.addGetHandler(this);
 
 	if (document.readyState !== 'loading') self.init();
 	else window.addEventListener('DOMContentLoaded', ()=>{self.init()}, {once: true, passive: true});
@@ -283,30 +291,29 @@ var	__TinyKanban__ = function() {
 __TinyKanban__.prototype.init = function(repeated) {
 	const	self = this;
 	if (!self.readOnly) {
-		$('${lists}').sortable({
-			connectWith: '.__TinyKanban_List__',
+		$(self.sortableEles).sortable({
+			connectWith: 'ul.__TinyKanban_List__${across}',
 			update: ()=>{ self.update() },
 			cursor: 'grabbing'
 		}).disableSelection();
 	}
 
 	if (!repeated) {
-		/*<!--*/self.set(${json});/*-->*/
-		if (${interval} > 0) self.getTimer = setTimeout(()=>{self.get()}, ${interval});
+		self.set(0, self.data);
+		if (self.id == 1 && ${interval} > 0) self.getTimer = setTimeout(()=>{self.get()}, ${interval});
 	} else {
 		self.filetime = 0;
 		if (self.getTimer) clearTimeout(self.getTimer);
 		self.get();
 	}
 
-
 	return this;
 }
 
 // かんばん追加
 __TinyKanban__.prototype.add = function(index) {
-	const	ele = $('<li class="ui-state-default" onclick="__pluginTinyKanban__.focus(this)"><input type="text" value="" title="" placeholder="Add a title" oninput="__pluginTinyKanban__.change(this)" onchange="__pluginTinyKanban__.change(this, true)" maxlength="${maxLength}"/><button title="Remove" onclick="__pluginTinyKanban__.remove(this)">&times;</button></li>');
-	$('.__TinyKanban_Column__[data-tinykanban-column="' + index + '"] ul').append(ele);
+	const	ele = $('<li class="ui-state-default" onclick="__pluginTinyKanban_' + this.id + '__.focus(this)"><input type="text" value="" title="" placeholder="Add a title" oninput="__pluginTinyKanban_' + this.id + '__.change(this)" onchange="__pluginTinyKanban_' + this.id + '__.change(this, true)" maxlength="${maxLength}"/><button title="Remove" onclick="__pluginTinyKanban_' + this.id + '__.remove(this)">&times;</button></li>');
+	$('#__TinyKanban_' + this.id + '__ .__TinyKanban_Column__[data-tinykanban-column="' + index + '"] ul').append(ele);
 	this.update();
 }
 
@@ -335,7 +342,7 @@ __TinyKanban__.prototype.change = function(ele, update = false) {
 // DOM更新
 __TinyKanban__.prototype.update = function(event, ui) {
 	let	data = [];
-	$('#__TinyKanban__ .__TinyKanban_List__').each((i, list)=>{
+	$('#__TinyKanban_' + this.id + '__ .__TinyKanban_List__').each((i, list)=>{
 		let	column = [];
 		$(list).children('li').each((index, item)=>{ column.push($(item).find('input').val()) });
 		data.push(column);
@@ -355,7 +362,8 @@ __TinyKanban__.prototype.post = async function(data) {
 			data: {
 				query:   'update',
 				reffer:  '${page}',
-				columns: '${columns}',
+				id:      self.id,
+				columns: self.columns,
 				data:    JSON.stringify(self.data)
 			},
 			timeout: 10000
@@ -370,58 +378,69 @@ __TinyKanban__.prototype.post = async function(data) {
 }
 
 // ページ更新確認要求送信
+__TinyKanban__.prototype.addGetHandler = function(handler) {
+	this.getHandlers.push(handler);
+}
 __TinyKanban__.prototype.get = async function() {
 	const	self = this;
-	let	wait = 1;
-	$.ajax({
-		type: 'GET',
-		url: './?plugin=tinykanban&query=get&reffer=${page}&filetime=' + self.filetime,
-		dataType: 'json',
-		timeout: ${interval}
-	}).done((data)=>{
-		if (data && data.filetime !== undefined) {
-			self.filetime = parseInt(data.filetime);
-			if (data.data) {
-				self.set(data.data);
-			} else {
-				console.error('tinykanban.inc.php: get_source error');
-				wait = 10;
+	if (self.id == 1) {
+		let	wait = 1;
+		$.ajax({
+			type: 'GET',
+			url: './?plugin=tinykanban&query=get&reffer=${page}&filetime=' + self.filetime,
+			dataType: 'json',
+			timeout: ${interval}
+		}).done((data)=>{
+			if (data && data.filetime !== undefined) {
+				if (data.data) {
+					let	index = 0;
+					self.getHandlers.forEach((handler) => { handler.set(parseInt(data.filetime), data.data[index++]) });
+				} else {
+					console.error('tinykanban.inc.php: get_source error');
+					wait = 10;
+				}
 			}
-		}
-	}).fail(()=>{
-		console.error('tinykanban.inc.php: connection error');
-		wait = 2;
-	}).always(()=>{
-		if (${interval} > 0) self.getTimer = setTimeout(()=>{self.get()}, ${interval} * wait);
-	});
+		}).fail(()=>{
+			console.error('tinykanban.inc.php: connection error');
+			wait = 2;
+		}).always(()=>{
+			if (${interval} > 0) self.getTimer = setTimeout(()=>{self.get()}, ${interval} * wait);
+		});
+	}
 }
 
 // JSONに基づいてかんばん要素を追加
-__TinyKanban__.prototype.set = function(data) {
+__TinyKanban__.prototype.set = function(filetime, data) {
 	const	self = this;
-	let	i = 0;
-	$('ul.__TinyKanban_List__ > li').remove();
-	data.forEach((column)=>{
-		let	j = 0;
-		column.forEach((value)=>{
-			value = self.escape(value);
-			const	ele = $('<li class="ui-state-default' + ((value !== '')? ' __TinyKanban_Protected__' : '') + '"' + (!self.readOnly ? ' onclick="__pluginTinyKanban__.focus(this)"' : '') + '><input type="text" value="' + value + '" title="' + value + '" placeholder="Add a title" oninput="__pluginTinyKanban__.change(this)" onchange="__pluginTinyKanban__.change(this, true)" ${readOnly} maxlength="${maxLength}"/>' + (!self.readOnly ? '<button title="Remove" onclick="__pluginTinyKanban__.remove(this)">&times;</button>' : '') + '</li>');
-			$('#__TinyKanban_List_' + i + '__').append(ele);
-			j++;
+
+	if (!filetime || self.filetime < filetime) {
+		self.filetime = filetime;
+		let	i = 0;
+		$('#__TinyKanban_' + self.id + '__ ul.__TinyKanban_List__ > li').remove();
+		data.forEach((column)=>{
+			let	j = 0;
+			column.forEach((value)=>{
+				value = self.escape(value);
+				const	ele = $('<li class="ui-state-default' + ((value !== '')? ' __TinyKanban_Protected__' : '') + '"' + (!self.readOnly ? ' onclick="__pluginTinyKanban_' + self.id + '__.focus(this)"' : '') + '><input type="text" value="' + value + '" title="' + value + '" placeholder="Add a title" oninput="__pluginTinyKanban_' + self.id + '__.change(this)" onchange="__pluginTinyKanban_' + self.id + '__.change(this, true)" ${readOnly} maxlength="${maxLength}"/>' + (!self.readOnly ? '<button title="Remove" onclick="__pluginTinyKanban_' + self.id + '__.remove(this)">&times;</button>' : '') + '</li>');
+				$('#__TinyKanban_' + self.id + '__ ul.__TinyKanban_List__[data-tinykanban-list="' + i + '"]').append(ele);
+				j++;
+			});
+			i++;
 		});
-		i++;
-	});
+	}
 }
 
 // 文字列エスケープ
 __TinyKanban__.prototype.escape = function(string) { return (typeof string !== 'string')? string : string.replace(/[&'`"<>]/g, function(match){return {'&': '&amp;', "'": '&#x27;', '`': '&#x60;', '"': '&quot;', '<': '&lt;', '>': '&gt;'}[match]}) }
-
-// 起動
-var __pluginTinyKanban__ = (__pluginTinyKanban__ === undefined)? new __TinyKanban__() : __pluginTinyKanban__.init(true);
 </script>
 EOT;
+	}
 
-	$body .= $columnEles . '</div>';
+	$body .= '<style>' . $colorStyle . '</style>';
+	$body .= $columnEles;
+	$body .= '<script>/*<!--*/"use strict";var __pluginTinyKanban_' . $id . '__ = (__pluginTinyKanban_' . $id . '__ === undefined)? new __TinyKanban__(' . $id . ', "' . $columns . '", "#__TinyKanban_' . $id . '__ ul.__TinyKanban_List__", ' . $json . ', __pluginTinyKanban_1__ || null) : __pluginTinyKanban_' . $id . '__.init(true);/*-->*/</script>';
+	$body .= '</div>';
+
 	return $body;
 }
 
@@ -436,9 +455,10 @@ function plugin_tinykanban_action() {
 		switch ($vars['query']) {
 		case 'update':	// ページ更新
 			if (!PKWK_READONLY && (PLUGIN_TINYKANBAN_PUBLIC || (is_editable($page) && is_page_writable($page)))) {	// 編集権限あり？
+				$id = (int)$vars['id'];
 				$postdata = '';
 				foreach (get_source($page) as $line) {
-					if (!$result && strpos($line, '#tinykanban(') === 0) {
+					if (!$result && strpos($line, '#tinykanban(') === 0 && --$id === 0) {
 						// 当プラグインの引数にかんばん情報を埋め込む
 						$line = '#tinykanban("' . htmlsc($vars['columns']) . '","' . htmlspecialchars($vars['data']) . '")' . "\n";
 						$result = true;
@@ -460,15 +480,15 @@ function plugin_tinykanban_action() {
 				$source = get_source($page);
 				if ($source !== false) {
 					// 当プラグインの引数からかんばん情報を抜き出す
+					$data = '';
 					foreach ($source as $line) {
 						if (strpos($line, '#tinykanban(') === 0) {
 							$line = explode('"', $line);
-							$data = $line[count($line) - 2];
-							break;
+							$data .= ($data ? ',' : '') . htmlspecialchars_decode($line[count($line) - 2]);
 						}
 					}
 				}
-				$result = '{"filetime":' . $filetime . ',"data":' . ($data ? htmlspecialchars_decode($data) : 'null') . '}';
+				$result = '{"filetime":' . $filetime . ',"data":' . ($data ? '[' . $data . ']' : 'null') . '}';
 			}
 			break;
 		}
