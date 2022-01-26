@@ -38,13 +38,13 @@ coumnName:Colorの組を「|」で区切って必要なだけ羅列する。必�
 /////////////////////////////////////////////////
 // 簡易かんばんボードプラグイン（tinykanban.inc.php）
 if (!defined('PLUGIN_TINYKANBAN_JQUERY_URL'))    define('PLUGIN_TINYKANBAN_JQUERY_URL',    'https://code.jquery.com/jquery-3.6.0.min.js');        // jQuery のURL（すでに読み込まれていて不要な場合は空にする）
-if (!defined('PLUGIN_TINYKANBAN_JQUERYUI_URL'))  define('PLUGIN_TINYKANBAN_JQUERYUI_URL',  'https://code.jquery.com/ui/1.13.0/jquery-ui.min.js'); // jQuery UI のURL（すでに読み込まれていて不要な場合は空にする）
+if (!defined('PLUGIN_TINYKANBAN_JQUERYUI_URL'))  define('PLUGIN_TINYKANBAN_JQUERYUI_URL',  'https://code.jquery.com/ui/1.13.1/jquery-ui.min.js'); // jQuery UI のURL（すでに読み込まれていて不要な場合は空にする）
 if (!defined('PLUGIN_TINYKANBAN_ADDJS_URL'))     define('PLUGIN_TINYKANBAN_ADDJS_URL',     '');                                                   // 追加JavaScriptのURL（jQuery UIをタッチ操作に対応させるハック jquery.ui.touch-punch.js 等必要に応じて）
 if (!defined('PLUGIN_TINYKANBAN_DEFAULTCOLOR'))  define('PLUGIN_TINYKANBAN_DEFAULTCOLOR',  '#aabbcc');                                            // 列のデフォルト色
 if (!defined('PLUGIN_TINYKANBAN_SYNC_INTERVAL')) define('PLUGIN_TINYKANBAN_SYNC_INTERVAL', 0);                                                    // 更新同期間隔（秒）。0なら同期しない
 if (!defined('PLUGIN_TINYKANBAN_MAXLENGTH'))     define('PLUGIN_TINYKANBAN_MAXLENGTH',     80);                                                   // かんばん名の最大文字数
 if (!defined('PLUGIN_TINYKANBAN_PROTECT'))       define('PLUGIN_TINYKANBAN_PROTECT',       1);                                                    // 1：名前が空のかんばんのみ削除できる, 0：名前付きのかんばんも削除できる
-if (!defined('PLUGIN_TINYKANBAN_ACROSS'))        define('PLUGIN_TINYKANBAN_ACROSS',        0);                                                    // 1：ページ内に複数のかんばんボード（インスタンス）があるとき、かんばんがインスタンスを跨いで移動できる, 0：かんばんがインスタンスを跨げない
+if (!defined('PLUGIN_TINYKANBAN_ACROSS'))        define('PLUGIN_TINYKANBAN_ACROSS',        0);                                                    // 1：ページ内に複数のかんばんボードがあるとき、かんばんがボードを跨いで移動できる, 0：かんばんがボードを跨げない
 if (!defined('PLUGIN_TINYKANBAN_PUBLIC'))        define('PLUGIN_TINYKANBAN_PUBLIC',        0);                                                    // 1：編集権限のないユーザーにもかんばんの変更を許可, 0：かんばんの変更には編集権限が必須
 
 function plugin_tinykanban_convert() {
