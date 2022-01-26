@@ -1,7 +1,7 @@
 <?php
 /*
 PukiWiki - Yet another WikiWikiWeb clone.
-tinykanban.inc.php, v1.1.0 2022 M.Taniguchi
+tinykanban.inc.php, v1.1.1 2022 M.Taniguchi
 License: GPL v2 or (at your option) any later version
 
 簡易かんばんボードプラグイン
@@ -377,10 +377,12 @@ __TinyKanban__.prototype.post = async function(data) {
 	self.data = data;
 }
 
-// ページ更新確認要求送信
+// ページ更新確認ハンドラ登録
 __TinyKanban__.prototype.addGetHandler = function(handler) {
 	this.getHandlers.push(handler);
 }
+
+// ページ更新確認要求送信
 __TinyKanban__.prototype.get = async function() {
 	const	self = this;
 	if (self.id == 1) {
@@ -395,9 +397,6 @@ __TinyKanban__.prototype.get = async function() {
 				if (data.data) {
 					let	index = 0;
 					self.getHandlers.forEach((handler) => { handler.set(parseInt(data.filetime), data.data[index++]) });
-				} else {
-					console.error('tinykanban.inc.php: get_source error');
-					wait = 10;
 				}
 			}
 		}).fail(()=>{
@@ -483,8 +482,14 @@ function plugin_tinykanban_action() {
 					$data = '';
 					foreach ($source as $line) {
 						if (strpos($line, '#tinykanban(') === 0) {
+							if ($data) $data .= ',';
 							$line = explode('"', $line);
-							$data .= ($data ? ',' : '') . htmlspecialchars_decode($line[count($line) - 2]);
+							$cnt = count($line);
+							if ($cnt >= 5) {
+								$data .= htmlspecialchars_decode(trim($line[$cnt - 2]));
+							} else {
+								$data .= '[[""]]';
+							}
 						}
 					}
 				}
