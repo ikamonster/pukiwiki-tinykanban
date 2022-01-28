@@ -1,7 +1,7 @@
 <?php
 /*
 PukiWiki - Yet another WikiWikiWeb clone.
-tinykanban.inc.php, v1.1.1 2022 M.Taniguchi
+tinykanban.inc.php, v1.1.2 2022 M.Taniguchi
 License: GPL v2 or (at your option) any later version
 
 簡易かんばんボードプラグイン
@@ -138,6 +138,8 @@ function plugin_tinykanban_convert() {
 	overflow: visible;
 	flex: 0 100 100%;
 	background: var(--TinyKanban-board-bg-color);
+	color-adjust: exact;
+	-webkit-print-color-adjust: exact;
 }
 .__TinyKanban_Column__:first-child {margin-left:0}
 .__TinyKanban_Column__:last-child {margin-right:0}
@@ -156,6 +158,7 @@ function plugin_tinykanban_convert() {
 	border-radius: var(--TinyKanban-corner-radius) var(--TinyKanban-corner-radius) 0 0;
 	box-sizing: border-box;
 	z-index: 1;
+	color-adjust: exact;
 }
 .__TinyKanban__ button {
 	position: absolute;
@@ -223,6 +226,7 @@ ul.__TinyKanban_List__ > li {
 	border-radius: var(--TinyKanban-corner-radius);
 	background: linear-gradient(to right, #808080, #808080 12px, var(--TinyKanban-kanban-bg-color) 12px, var(--TinyKanban-kanban-bg-color) 100%);
 	box-shadow: var(--TinyKanban-shadow);
+	color-adjust: exact;
 }
 ul.__TinyKanban_List__ > li input, ul.__TinyKanban_List__ > li input:disabled {
 	font-family: var(--TinyKanban-kanban-font);
@@ -233,7 +237,7 @@ ul.__TinyKanban_List__ > li input, ul.__TinyKanban_List__ > li input:disabled {
 	line-height: 1em;
 	border: none;
 	box-sizing: border-box;
-	background: var(--TinyKanban-kanban-bg-color);
+	background: transparent;
 	color: var(--TinyKanban-kanban-color);
 	width: 100%;
 	border-radius: 3px;
@@ -249,12 +253,14 @@ EOT;
 		// 編集権限ありならUIをインタラクティブに
 		if (!$readOnly) {
 			$body .=<<<EOT
+@media screen {
 .__TinyKanban_Column__:hover .__TinyKanban_Header__ button {opacity:1; transition:opacity var(--TinyKanban-transition-fadein)}
 .__TinyKanban_Column__ .__TinyKanban_Header__ button:hover {background-color:#fff; color:#000; cursor:pointer}
 ul.__TinyKanban_List__ > li:hover {cursor:grab}
 ul.__TinyKanban_List__ > li input:hover {background-color:rgba(128,128,128,.07); transition:background-color var(--TinyKanban-transition-fadein)}
 ul.__TinyKanban_List__ > li:hover button {opacity:1; transition:opacity var(--TinyKanban-transition-fadein)}
 ul.__TinyKanban_List__ > li button:hover {color:#000; cursor:pointer; transition:color var(--TinyKanban-transition-fadein)}
+}
 EOT;
 		}
 
