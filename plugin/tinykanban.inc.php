@@ -1,7 +1,7 @@
 <?php
 /*
 PukiWiki - Yet another WikiWikiWeb clone.
-tinykanban.inc.php, v1.1.2 2022 M.Taniguchi
+tinykanban.inc.php, v1.1.3 2022 M.Taniguchi
 License: GPL v2 or (at your option) any later version
 
 簡易かんばんボードプラグイン
@@ -321,6 +321,7 @@ __TinyKanban__.prototype.add = function(index) {
 	const	ele = $('<li class="ui-state-default" onclick="__pluginTinyKanban_' + this.id + '__.focus(this)"><input type="text" value="" title="" placeholder="Add a title" oninput="__pluginTinyKanban_' + this.id + '__.change(this)" onchange="__pluginTinyKanban_' + this.id + '__.change(this, true)" maxlength="${maxLength}"/><button title="Remove" onclick="__pluginTinyKanban_' + this.id + '__.remove(this)">&times;</button></li>');
 	$('#__TinyKanban_' + this.id + '__ .__TinyKanban_Column__[data-tinykanban-column="' + index + '"] ul').append(ele);
 	this.update();
+	this.focus(ele.get(0));
 }
 
 // かんばん削除
