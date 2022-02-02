@@ -1,5 +1,3 @@
-<meta name="google-site-verification" content="_pzN1dcFPUaFYxcPlHEiya8gcZHC-Mw45k8oKt0IP6I" />
-
 # PukiWiki用プラグイン<br>簡易かんばんボード tinykanban.inc.php
 
 かんばん方式の簡易ToDoリストを表示する[PukiWiki](https://pukiwiki.osdn.jp/)用プラグイン。  
