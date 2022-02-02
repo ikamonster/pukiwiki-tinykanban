@@ -14,7 +14,7 @@
 
 下記 GitHub ページからダウンロードした tinykanban.inc.php を PukiWiki の plugin ディレクトリに配置してください。
 
-https://github.com/ikamonster/pukiwiki-tinykanban
+[https://github.com/ikamonster/pukiwiki-tinykanban](https://github.com/ikamonster/pukiwiki-tinykanban)
 
 <br>
 
