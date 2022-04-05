@@ -6,7 +6,7 @@
 
 |対象PukiWikiバージョン|対象PHPバージョン|
 |:---:|:---:|
-|PukiWiki 1.5.3 ~ 1.5.4RC (UTF-8)|PHP 7.4 ~ 8.1|
+|PukiWiki 1.5.3 ~ 1.5.4 (UTF-8)|PHP 7.4 ~ 8.1|
 
 <br>
 
