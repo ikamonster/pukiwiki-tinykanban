@@ -1,7 +1,7 @@
 <?php
 /*
 PukiWiki - Yet another WikiWikiWeb clone.
-tinykanban.inc.php, v1.1.3 2022 M.Taniguchi
+tinykanban.inc.php, v1.1.4 2022 M.Taniguchi
 License: GPL v2 or (at your option) any later version
 
 簡易かんばんボードプラグイン
@@ -270,7 +270,7 @@ EOT;
 		// JavaScript
 		$body .= <<<EOT
 </style>
-${jqueryUrl}
+{$jqueryUrl}
 <script>
 'use strict';
 
@@ -278,8 +278,8 @@ ${jqueryUrl}
 var	__TinyKanban__ = function(id, columns, sortableEles, json, obj) {
 	const	self = this;
 	this.id = id;
-	this.readOnly = '${readOnly}';
-	this.filetime = ${filetime};
+	this.readOnly = '{$readOnly}';
+	this.filetime = {$filetime};
 	this.postTimer = null;
 	this.columns = columns;
 	this.sortableEles = sortableEles;
@@ -298,7 +298,7 @@ __TinyKanban__.prototype.init = function(repeated) {
 	const	self = this;
 	if (!self.readOnly) {
 		$(self.sortableEles).sortable({
-			connectWith: 'ul.__TinyKanban_List__${across}',
+			connectWith: 'ul.__TinyKanban_List__{$across}',
 			update: ()=>{ self.update() },
 			cursor: 'grabbing'
 		}).disableSelection();
@@ -306,7 +306,7 @@ __TinyKanban__.prototype.init = function(repeated) {
 
 	if (!repeated) {
 		self.set(0, self.data);
-		if (self.id == 1 && ${interval} > 0) self.getTimer = setTimeout(()=>{self.get()}, ${interval});
+		if (self.id == 1 && {$interval} > 0) self.getTimer = setTimeout(()=>{self.get()}, {$interval});
 	} else {
 		self.filetime = 0;
 		if (self.getTimer) clearTimeout(self.getTimer);
@@ -318,7 +318,7 @@ __TinyKanban__.prototype.init = function(repeated) {
 
 // かんばん追加
 __TinyKanban__.prototype.add = function(index) {
-	const	ele = $('<li class="ui-state-default" onclick="__pluginTinyKanban_' + this.id + '__.focus(this)"><input type="text" value="" title="" placeholder="Add a title" oninput="__pluginTinyKanban_' + this.id + '__.change(this)" onchange="__pluginTinyKanban_' + this.id + '__.change(this, true)" maxlength="${maxLength}"/><button title="Remove" onclick="__pluginTinyKanban_' + this.id + '__.remove(this)">&times;</button></li>');
+	const	ele = $('<li class="ui-state-default" onclick="__pluginTinyKanban_' + this.id + '__.focus(this)"><input type="text" value="" title="" placeholder="Add a title" oninput="__pluginTinyKanban_' + this.id + '__.change(this)" onchange="__pluginTinyKanban_' + this.id + '__.change(this, true)" maxlength="{$maxLength}"/><button title="Remove" onclick="__pluginTinyKanban_' + this.id + '__.remove(this)">&times;</button></li>');
 	$('#__TinyKanban_' + this.id + '__ .__TinyKanban_Column__[data-tinykanban-column="' + index + '"] ul').append(ele);
 	this.update();
 	this.focus(ele.get(0));
@@ -368,7 +368,7 @@ __TinyKanban__.prototype.post = async function(data) {
 			url: './?plugin=tinykanban',
 			data: {
 				query:   'update',
-				reffer:  '${page}',
+				reffer:  '{$page}',
 				id:      self.id,
 				columns: self.columns,
 				data:    JSON.stringify(self.data)
@@ -396,9 +396,9 @@ __TinyKanban__.prototype.get = async function() {
 		let	wait = 1;
 		$.ajax({
 			type: 'GET',
-			url: './?plugin=tinykanban&query=get&reffer=${page}&filetime=' + self.filetime,
+			url: './?plugin=tinykanban&query=get&reffer={$page}&filetime=' + self.filetime,
 			dataType: 'json',
-			timeout: ${interval}
+			timeout: {$interval}
 		}).done((data)=>{
 			if (data && data.filetime !== undefined) {
 				if (data.data) {
@@ -410,7 +410,7 @@ __TinyKanban__.prototype.get = async function() {
 			console.error('tinykanban.inc.php: connection error');
 			wait = 2;
 		}).always(()=>{
-			if (${interval} > 0) self.getTimer = setTimeout(()=>{self.get()}, ${interval} * wait);
+			if ({$interval} > 0) self.getTimer = setTimeout(()=>{self.get()}, {$interval} * wait);
 		});
 	}
 }
@@ -427,7 +427,7 @@ __TinyKanban__.prototype.set = function(filetime, data) {
 			let	j = 0;
 			column.forEach((value)=>{
 				value = self.escape(value);
-				const	ele = $('<li class="ui-state-default' + ((value !== '')? ' __TinyKanban_Protected__' : '') + '"' + (!self.readOnly ? ' onclick="__pluginTinyKanban_' + self.id + '__.focus(this)"' : '') + '><input type="text" value="' + value + '" title="' + value + '" placeholder="Add a title" oninput="__pluginTinyKanban_' + self.id + '__.change(this)" onchange="__pluginTinyKanban_' + self.id + '__.change(this, true)" ${readOnly} maxlength="${maxLength}"/>' + (!self.readOnly ? '<button title="Remove" onclick="__pluginTinyKanban_' + self.id + '__.remove(this)">&times;</button>' : '') + '</li>');
+				const	ele = $('<li class="ui-state-default' + ((value !== '')? ' __TinyKanban_Protected__' : '') + '"' + (!self.readOnly ? ' onclick="__pluginTinyKanban_' + self.id + '__.focus(this)"' : '') + '><input type="text" value="' + value + '" title="' + value + '" placeholder="Add a title" oninput="__pluginTinyKanban_' + self.id + '__.change(this)" onchange="__pluginTinyKanban_' + self.id + '__.change(this, true)" {$readOnly} maxlength="{$maxLength}"/>' + (!self.readOnly ? '<button title="Remove" onclick="__pluginTinyKanban_' + self.id + '__.remove(this)">&times;</button>' : '') + '</li>');
 				$('#__TinyKanban_' + self.id + '__ ul.__TinyKanban_List__[data-tinykanban-list="' + i + '"]').append(ele);
 				j++;
 			});
