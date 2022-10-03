@@ -1,7 +1,7 @@
 <?php
 /*
 PukiWiki - Yet another WikiWikiWeb clone.
-tinykanban.inc.php, v1.1.4 2022 M.Taniguchi
+tinykanban.inc.php, v1.1.5 2022 M. Taniguchi
 License: GPL v2 or (at your option) any later version
 
 簡易かんばんボードプラグイン
@@ -37,9 +37,10 @@ coumnName:Colorの組を「|」で区切って必要なだけ羅列する。必�
 
 /////////////////////////////////////////////////
 // 簡易かんばんボードプラグイン（tinykanban.inc.php）
-if (!defined('PLUGIN_TINYKANBAN_JQUERY_URL'))    define('PLUGIN_TINYKANBAN_JQUERY_URL',    'https://code.jquery.com/jquery-3.6.0.min.js');        // jQuery のURL（すでに読み込まれていて不要な場合は空にする）
-if (!defined('PLUGIN_TINYKANBAN_JQUERYUI_URL'))  define('PLUGIN_TINYKANBAN_JQUERYUI_URL',  'https://code.jquery.com/ui/1.13.1/jquery-ui.min.js'); // jQuery UI のURL（すでに読み込まれていて不要な場合は空にする）
+if (!defined('PLUGIN_TINYKANBAN_JQUERY_URL'))    define('PLUGIN_TINYKANBAN_JQUERY_URL',    'https://code.jquery.com/jquery-3.6.1.min.js');        // jQuery のURL（すでに読み込まれており不要な場合は空にする）
+if (!defined('PLUGIN_TINYKANBAN_JQUERYUI_URL'))  define('PLUGIN_TINYKANBAN_JQUERYUI_URL',  'https://code.jquery.com/ui/1.13.2/jquery-ui.min.js'); // jQuery UI のURL（すでに読み込まれており不要な場合は空にする）
 if (!defined('PLUGIN_TINYKANBAN_ADDJS_URL'))     define('PLUGIN_TINYKANBAN_ADDJS_URL',     '');                                                   // 追加JavaScriptのURL（jQuery UIをタッチ操作に対応させるハック jquery.ui.touch-punch.js 等必要に応じて）
+if (!defined('PLUGIN_TINYKANBAN_THEME'))         define('PLUGIN_TINYKANBAN_THEME',         0);                                                    // 0：ライトテーマ, 1：ダークテーマ, 2：自動
 if (!defined('PLUGIN_TINYKANBAN_DEFAULTCOLOR'))  define('PLUGIN_TINYKANBAN_DEFAULTCOLOR',  '#aabbcc');                                            // 列のデフォルト色
 if (!defined('PLUGIN_TINYKANBAN_SYNC_INTERVAL')) define('PLUGIN_TINYKANBAN_SYNC_INTERVAL', 0);                                                    // 更新同期間隔（秒）。0なら同期しない
 if (!defined('PLUGIN_TINYKANBAN_MAXLENGTH'))     define('PLUGIN_TINYKANBAN_MAXLENGTH',     80);                                                   // かんばん名の最大文字数
@@ -92,7 +93,7 @@ function plugin_tinykanban_convert() {
 		$body .= <<<EOT
 <style>
 :root {
-	--TinyKanban-board-bg-color: rgba(128,128,128,.07);	/* ボード背景色 */
+	--TinyKanban-board-bg-color: rgba(128,128,128,.1);	/* ボード背景色 */
 	--TinyKanban-board-margin: 2px;	/* ボード間隔 */
 	--TinyKanban-header-color: #fff; /*  ヘッダー文字色 */
 	--TinyKanban-header-font: sans-serif; /* ヘッダーフォント */
@@ -243,7 +244,7 @@ ul.__TinyKanban_List__ > li input, ul.__TinyKanban_List__ > li input:disabled {
 	border-radius: 3px;
 	transition: background-color var(--TinyKanban-transition-fadeout);
 }
-ul.__TinyKanban_List__ > li input::placeholder {color:rgba(128,128,128,.333)}
+ul.__TinyKanban_List__ > li input::placeholder {color:rgba(128,128,128,.5)}
 ul.__TinyKanban_List__ > li button {
 	right: 2px;
 	margin: 0 0 0 2px;
@@ -266,6 +267,19 @@ EOT;
 
 		// 定数に応じて調整
 		if (PLUGIN_TINYKANBAN_PROTECT) $body .= "ul.__TinyKanban_List__ > li.__TinyKanban_Protected__ button {display:none}\n";
+
+		// ダークモード設定
+		if (PLUGIN_TINYKANBAN_THEME == 2) $body .= "@media screen and (prefers-color-scheme: dark) {\n";
+		if (PLUGIN_TINYKANBAN_THEME >= 1) {
+			$body .= <<<EOT
+:root {
+	--TinyKanban-board-bg-color: rgba(128,128,128,.2);	/* ボード背景色 */
+	--TinyKanban-kanban-bg-color: #3c3c3c; /* かんばん背景色 */
+	--TinyKanban-kanban-color: rgba(255,255,255,.85); /* かんばん文字色 */
+}
+EOT;
+		}
+		if (PLUGIN_TINYKANBAN_THEME == 2) $body .= "}\n";
 
 		// JavaScript
 		$body .= <<<EOT
