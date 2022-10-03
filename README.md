@@ -63,9 +63,10 @@
 
 |定数名|値|既定値|意味|
 |:---|:---:|:---|:---|
-|PLUGIN_TINYKANBAN_JQUERY_URL|URL|'https[]()://code.jquery.com/jquery-3.6.0.min.js'|[jQuery](https://jquery.com/) のURL（すでに読み込まれていて不要な場合は空にする）|
-|PLUGIN_TINYKANBAN_JQUERYUI_URL|URL|'https[]()://code.jquery.com/ui/1.13.1/jquery-ui.min.js'|[jQuery UI](https://jqueryui.com/) のURL（すでに読み込まれていて不要な場合は空にする）|
+|PLUGIN_TINYKANBAN_JQUERY_URL|URL|'https[]()://code.jquery.com/jquery-3.6.1.min.js'|[jQuery](https://jquery.com/) のURL（すでに読み込まれていて不要な場合は空にする）|
+|PLUGIN_TINYKANBAN_JQUERYUI_URL|URL|'https[]()://code.jquery.com/ui/1.13.2/jquery-ui.min.js'|[jQuery UI](https://jqueryui.com/) のURL（すでに読み込まれていて不要な場合は空にする）|
 |PLUGIN_TINYKANBAN_ADDJS_URL|URL|''|追加 JavaScriptの URL（jQuery UI をタッチ操作に対応させるハック [jquery.ui.touch-punch.js](https://github.com/furf/jquery-ui-touch-punch) 等必要に応じて）|
+|PLUGIN_TINYKANBAN_THEME|0 ~ 2|0|0：ライトテーマ, 1：ダークテーマ, 2：自動|
 |PLUGIN_TINYKANBAN_DEFAULTCOLOR|HTMLカラーコード|'#aabbcc'|列のデフォルト色|
 |PLUGIN_TINYKANBAN_SYNC_INTERVAL|数値|0|更新同期間隔（秒）。0 なら同期しない|
 |PLUGIN_TINYKANBAN_MAXLENGTH|数値|80|かんばん名の最大文字数|
