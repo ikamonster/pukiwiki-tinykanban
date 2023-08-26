@@ -1,7 +1,7 @@
 <?php
 /*
 PukiWiki - Yet another WikiWikiWeb clone.
-tinykanban.inc.php, v1.1.5 2022 M. Taniguchi
+tinykanban.inc.php, v1.2 2022 M. Taniguchi
 License: GPL v2 or (at your option) any later version
 
 簡易かんばんボードプラグイン
@@ -41,7 +41,7 @@ if (!defined('PLUGIN_TINYKANBAN_JQUERY_URL'))    define('PLUGIN_TINYKANBAN_JQUER
 if (!defined('PLUGIN_TINYKANBAN_JQUERYUI_URL'))  define('PLUGIN_TINYKANBAN_JQUERYUI_URL',  'https://code.jquery.com/ui/1.13.2/jquery-ui.min.js'); // jQuery UI のURL（すでに読み込まれており不要な場合は空にする）
 if (!defined('PLUGIN_TINYKANBAN_ADDJS_URL'))     define('PLUGIN_TINYKANBAN_ADDJS_URL',     '');                                                   // 追加JavaScriptのURL（jQuery UIをタッチ操作に対応させるハック jquery.ui.touch-punch.js 等必要に応じて）
 if (!defined('PLUGIN_TINYKANBAN_THEME'))         define('PLUGIN_TINYKANBAN_THEME',         0);                                                    // 0：ライトテーマ, 1：ダークテーマ, 2：自動
-if (!defined('PLUGIN_TINYKANBAN_DEFAULTCOLOR'))  define('PLUGIN_TINYKANBAN_DEFAULTCOLOR',  '#aabbcc');                                            // 列のデフォルト色
+if (!defined('PLUGIN_TINYKANBAN_DEFAULTCOLOR'))  define('PLUGIN_TINYKANBAN_DEFAULTCOLOR',  '#667788');                                            // 列のデフォルト色
 if (!defined('PLUGIN_TINYKANBAN_SYNC_INTERVAL')) define('PLUGIN_TINYKANBAN_SYNC_INTERVAL', 0);                                                    // 更新同期間隔（秒）。0なら同期しない
 if (!defined('PLUGIN_TINYKANBAN_MAXLENGTH'))     define('PLUGIN_TINYKANBAN_MAXLENGTH',     80);                                                   // かんばん名の最大文字数
 if (!defined('PLUGIN_TINYKANBAN_PROTECT'))       define('PLUGIN_TINYKANBAN_PROTECT',       1);                                                    // 1：名前が空のかんばんのみ削除できる, 0：名前付きのかんばんも削除できる
@@ -82,7 +82,7 @@ function plugin_tinykanban_convert() {
 		$lists .= ($lists ? ',' : '') . '#__TinyKanban_' . $id . '__ ul.__TinyKanban_List__';
 		$columnEles .= '<div class="__TinyKanban_Column__" data-tinykanban-column="' . $i . '"><div class="__TinyKanban_Header__">' . $name . '<button title="Add" onclick="__pluginTinyKanban_' . $id . '__.add(' . $i . ')">&plus;</button></div><ul class="__TinyKanban_List__" data-tinykanban-id="' . $id . '" data-tinykanban-list="' . $i . '" style="margin:0;padding:0"></ul></div>';
 		$colorStyle .= '#__TinyKanban_' . $id . '__ .__TinyKanban_Column__[data-tinykanban-column="' . $i . '"] .__TinyKanban_Header__{background-color:' . $color . "}\n";
-		$colorStyle .= '#__TinyKanban_' . $id . '__ .__TinyKanban_Column__[data-tinykanban-column="' . $i . '"] li{background:linear-gradient(to right,' . $color . ',' . $color . " 12px,var(--TinyKanban-kanban-bg-color) 12px,var(--TinyKanban-kanban-bg-color) 100%)}\n";
+		$colorStyle .= '#__TinyKanban_' . $id . '__ .__TinyKanban_Column__[data-tinykanban-column="' . $i . '"] li{background:linear-gradient(to right,' . $color . ',' . $color . " .75em,var(--TinyKanban-kanban-bg-color) .75em,var(--TinyKanban-kanban-bg-color) 100%)}\n";
 	}
 
 	$body = '<div class="__TinyKanban__" id="__TinyKanban_' . $id . '__">' . "\n";
@@ -94,20 +94,40 @@ function plugin_tinykanban_convert() {
 <style>
 :root {
 	--TinyKanban-board-bg-color: rgba(128,128,128,.1);	/* ボード背景色 */
-	--TinyKanban-board-margin: 2px;	/* ボード間隔 */
+	--TinyKanban-board-margin: .125em;	/* ボード間隔 */
 	--TinyKanban-header-color: #fff; /*  ヘッダー文字色 */
 	--TinyKanban-header-font: sans-serif; /* ヘッダーフォント */
-	--TinyKanban-header-font-size: 16px; /* ヘッダー文字サイズ */
+	--TinyKanban-header-font-size: 1em; /* ヘッダー文字サイズ */
 	--TinyKanban-kanban-bg-color: #fff; /* かんばん背景色 */
 	--TinyKanban-kanban-color: rgba(0,0,0,.9); /* かんばん文字色 */
 	--TinyKanban-kanban-font: sans-serif; /* かんばんフォント */
-	--TinyKanban-kanban-font-size: 13px; /* かんばん文字サイズ */
-	--TinyKanban-kanban-margin: 4px; /* かんばん間隔 */
-	--TinyKanban-corner-radius: 5px; /* 角丸半径 */
-	--TinyKanban-shadow: 0 0 1px rgba(0,0,0,.13), 0 1px 3px rgba(0,0,0,.2); /* 影 */
+	--TinyKanban-kanban-font-size: .9em; /* かんばん文字サイズ */
+	--TinyKanban-kanban-margin: .25em; /* かんばん間隔 */
+	--TinyKanban-corner-radius: .3125em; /* 角丸半径 */
+	--TinyKanban-shadow: 0 0 .0625rem rgba(0,0,0,.13), 0 .0625rem .1875rem rgba(0,0,0,.2); /* 影 */
 	--TinyKanban-transition-fadein: 17ms; /* UIフェードイン時間 */
 	--TinyKanban-transition-fadeout: 125ms; /* UIフェードアウト時間 */
 }
+
+/* for high contrast theme */
+@media screen and (forced-colors: active) {
+	:root {
+		--TinyKanban-board-bg-color: Canvas;
+		--TinyKanban-header-color: HighlightText;
+		--TinyKanban-kanban-bg-color: Canvas;
+		--TinyKanban-kanban-color: CanvasText;
+	}
+	.__TinyKanban_Column__ {
+		border: 1px solid GrayText !important;
+	}
+	.__TinyKanban_Header__ {
+		color: CanvasText !important;
+	}
+	ul.__TinyKanban_List__ > li {
+		border: 1px solid GrayText !important;
+	}
+}
+
 .__TinyKanban__ {
 	position: relative;
 	display: flex;
@@ -130,9 +150,9 @@ function plugin_tinykanban_convert() {
 	display: flex;
 	flex-direction: column;
 	border: none;
-	min-height: 20px;
+	min-height: 1.25em;
 	margin: 0 var(--TinyKanban-board-margin);
-	padding: 0 0 2px;
+	padding: 0 0 .125em;
 	height: auto;
 	box-sizing: border-box;
 	border-radius: var(--TinyKanban-corner-radius);
@@ -154,8 +174,8 @@ function plugin_tinykanban_convert() {
 	font-size: var(--TinyKanban-header-font-size);
 	font-weight: bold;
 	line-height: 1em;
-	padding: 6px 0;
-	margin: 0 0 1px;
+	padding: .375em 0;
+	margin: 0 0 .0625em;
 	border-radius: var(--TinyKanban-corner-radius) var(--TinyKanban-corner-radius) 0 0;
 	box-sizing: border-box;
 	z-index: 1;
@@ -163,22 +183,22 @@ function plugin_tinykanban_convert() {
 }
 .__TinyKanban__ button {
 	position: absolute;
-	top: calc(50% - 10px);
-	width: 20px;
-	min-width: 20px;
-	max-width: 20px;
-	height: 20px;
-	min-height: 20px;
-	max-height: 20px;
+	top: calc(50% - .625em);
+	width: 1.25em;
+	min-width: 1.25em;
+	max-width: 1.25em;
+	height: 1.25em;
+	min-height: 1.25em;
+	max-height: 1.25em;
 	padding: 0;
 	margin: 0;
 	background: #fff;
 	color: #999;
 	text-align: center;
 	vertical-align: middle;
-	line-height: 20px;
+	line-height: 1.25em;
 	font-family: sans-serif;
-	font-size: 16px;
+	font-size: 1em;
 	font-weight: bold;
 	border: none;
 	border-radius: 100%;
@@ -189,7 +209,7 @@ function plugin_tinykanban_convert() {
 	transition: opacity var(--TinyKanban-transition-fadeout);
 }
 .__TinyKanban_Header__ button {
-	right: 6px;
+	right: .375em;
 }
 ul.__TinyKanban_List__ {
 	width: 100%;
@@ -202,7 +222,7 @@ ul.__TinyKanban_List__ {
 	overflow: auto;
 }
 .__TinyKanban_List__::-webkit-scrollbar {
-	width: 5px;
+	width: .3125em;
 	border: 0 none;
 	box-sizing: border-box;
 	padding: 0;
@@ -211,21 +231,21 @@ ul.__TinyKanban_List__ {
 .__TinyKanban_List__::-webkit-scrollbar-track {background:transparent}
 .__TinyKanban_List__::-webkit-scrollbar-thumb {
 	background: rgba(128,128,128,.25);
-	border-radius: 2px;
+	border-radius: .125em;
 }
 ul.__TinyKanban_List__ > li {
 	position: relative;
 	font-size: var(--TinyKanban-kanban-font-size);
 	line-height: 1em;
-	margin: var(--TinyKanban-kanban-margin) 4px;
-	padding: 2px 2px 2px 16px;
+	margin: var(--TinyKanban-kanban-margin) .25em;
+	padding: .125em .125em .125em 1em;
 	color: var(--TinyKanban-kanban-color);
 	list-style-type: none;
 	vertical-align: middle;
 	border: none;
 	box-sizing: border-box;
 	border-radius: var(--TinyKanban-corner-radius);
-	background: linear-gradient(to right, #808080, #808080 12px, var(--TinyKanban-kanban-bg-color) 12px, var(--TinyKanban-kanban-bg-color) 100%);
+	background: linear-gradient(to right, #808080, #808080 .75em, var(--TinyKanban-kanban-bg-color) .75em, var(--TinyKanban-kanban-bg-color) 100%);
 	box-shadow: var(--TinyKanban-shadow);
 	color-adjust: exact;
 }
@@ -234,20 +254,20 @@ ul.__TinyKanban_List__ > li input, ul.__TinyKanban_List__ > li input:disabled {
 	font-size: var(--TinyKanban-kanban-font-size);
 	font-feature-settings: 'palt' 1;
 	margin: 0;
-	padding: 1px 3px 1px 2px;
+	padding: .0625em .1875em .0625em .125em;
 	line-height: 1em;
 	border: none;
 	box-sizing: border-box;
 	background: transparent;
 	color: var(--TinyKanban-kanban-color);
 	width: 100%;
-	border-radius: 3px;
+	border-radius: .1875em;
 	transition: background-color var(--TinyKanban-transition-fadeout);
 }
 ul.__TinyKanban_List__ > li input::placeholder {color:rgba(128,128,128,.5)}
 ul.__TinyKanban_List__ > li button {
-	right: 2px;
-	margin: 0 0 0 2px;
+	right: .125em;
+	margin: 0 0 0 .125em;
 }
 EOT;
 
@@ -255,12 +275,12 @@ EOT;
 		if (!$readOnly) {
 			$body .=<<<EOT
 @media screen {
-.__TinyKanban_Column__:hover .__TinyKanban_Header__ button {opacity:1; transition:opacity var(--TinyKanban-transition-fadein)}
+.__TinyKanban_Column__:hover .__TinyKanban_Header__ button, .__TinyKanban_Header__ button:focus {opacity:1; transition:opacity var(--TinyKanban-transition-fadein)}
 .__TinyKanban_Column__ .__TinyKanban_Header__ button:hover {background-color:#fff; color:#000; cursor:pointer}
 ul.__TinyKanban_List__ > li:hover {cursor:grab}
-ul.__TinyKanban_List__ > li input:hover {background-color:rgba(128,128,128,.07); transition:background-color var(--TinyKanban-transition-fadein)}
-ul.__TinyKanban_List__ > li:hover button {opacity:1; transition:opacity var(--TinyKanban-transition-fadein)}
-ul.__TinyKanban_List__ > li button:hover {color:#000; cursor:pointer; transition:color var(--TinyKanban-transition-fadein)}
+ul.__TinyKanban_List__ > li input:hover, ul.__TinyKanban_List__ > li input:focus {background-color:rgba(128,128,128,.07); transition:background-color var(--TinyKanban-transition-fadein)}
+ul.__TinyKanban_List__ > li:hover button, ul.__TinyKanban_List__ > li:focus button, ul.__TinyKanban_List__ > li button:focus {opacity:1; transition:opacity var(--TinyKanban-transition-fadein)}
+ul.__TinyKanban_List__ > li button:hover, ul.__TinyKanban_List__ > li button:focus {color:#000; cursor:pointer; transition:color var(--TinyKanban-transition-fadein)}
 }
 EOT;
 		}
