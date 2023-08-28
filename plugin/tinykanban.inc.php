@@ -1,7 +1,7 @@
 <?php
 /*
 PukiWiki - Yet another WikiWikiWeb clone.
-tinykanban.inc.php, v1.2 2022 M. Taniguchi
+tinykanban.inc.php, v1.2.1 2022 M. Taniguchi
 License: GPL v2 or (at your option) any later version
 
 簡易かんばんボードプラグイン
@@ -144,7 +144,10 @@ function plugin_tinykanban_convert() {
 	-ms-user-select: none;
 	-webkit-touch-callout: none;
 }
-.ui-draggable, .ui-droppable {background-position:top}
+.ui-draggable, .ui-droppable {
+	position: static;
+	background-position: top;
+}
 .__TinyKanban_Column__, .__TinyKanban_Column__:first-child, .__TinyKanban_Column__:last-child {
 	position: relative;
 	display: flex;
@@ -212,6 +215,7 @@ function plugin_tinykanban_convert() {
 	right: .375em;
 }
 ul.__TinyKanban_List__ {
+	position: static;
 	width: 100%;
 	height: 100%;
 	flex: 0 100 100%;
@@ -220,18 +224,6 @@ ul.__TinyKanban_List__ {
 	line-height: 100%;
 	box-sizing: border-box;
 	overflow: auto;
-}
-.__TinyKanban_List__::-webkit-scrollbar {
-	width: .3125em;
-	border: 0 none;
-	box-sizing: border-box;
-	padding: 0;
-	margin: 0;
-}
-.__TinyKanban_List__::-webkit-scrollbar-track {background:transparent}
-.__TinyKanban_List__::-webkit-scrollbar-thumb {
-	background: rgba(128,128,128,.25);
-	border-radius: .125em;
 }
 ul.__TinyKanban_List__ > li {
 	position: relative;
@@ -250,6 +242,7 @@ ul.__TinyKanban_List__ > li {
 	color-adjust: exact;
 }
 ul.__TinyKanban_List__ > li input, ul.__TinyKanban_List__ > li input:disabled {
+	position: relative;
 	font-family: var(--TinyKanban-kanban-font);
 	font-size: var(--TinyKanban-kanban-font-size);
 	font-feature-settings: 'palt' 1;
@@ -266,6 +259,7 @@ ul.__TinyKanban_List__ > li input, ul.__TinyKanban_List__ > li input:disabled {
 }
 ul.__TinyKanban_List__ > li input::placeholder {color:rgba(128,128,128,.5)}
 ul.__TinyKanban_List__ > li button {
+	position: absolute;
 	right: .125em;
 	margin: 0 0 0 .125em;
 }
