@@ -1,7 +1,7 @@
 <?php
 /*
 PukiWiki - Yet another WikiWikiWeb clone.
-tinykanban.inc.php, v1.2.2 2022 M. Taniguchi
+tinykanban.inc.php, v1.2.3 2022 M. Taniguchi
 License: GPL v2 or (at your option) any later version
 
 簡易かんばんボードプラグイン
@@ -95,17 +95,17 @@ function plugin_tinykanban_convert() {
 <style>
 :root {
 	--TinyKanban-board-bg-color: rgba(128,128,128,.1);	/* ボード背景色 */
-	--TinyKanban-board-margin: .125em;	/* ボード間隔 */
+	--TinyKanban-board-margin: .125rem;	/* ボード間隔 */
 	--TinyKanban-header-color: #fff; /*  ヘッダー文字色 */
 	--TinyKanban-header-font: sans-serif; /* ヘッダーフォント */
-	--TinyKanban-header-font-size: 1em; /* ヘッダー文字サイズ */
+	--TinyKanban-header-font-size: 1rem; /* ヘッダー文字サイズ */
 	--TinyKanban-kanban-bg-color: #fff; /* かんばん背景色 */
 	--TinyKanban-kanban-color: rgba(0,0,0,.9); /* かんばん文字色 */
 	--TinyKanban-kanban-font: sans-serif; /* かんばんフォント */
-	--TinyKanban-kanban-font-size: .9em; /* かんばん文字サイズ */
-	--TinyKanban-kanban-margin: .25em; /* かんばん間隔 */
-	--TinyKanban-corner-radius: .3125em; /* 角丸半径 */
-	--TinyKanban-shadow: 0 0 .0625rem rgba(0,0,0,.13), 0 .0625rem .1875rem rgba(0,0,0,.2); /* 影 */
+	--TinyKanban-kanban-font-size: .9rem; /* かんばん文字サイズ */
+	--TinyKanban-kanban-margin: .25rem; /* かんばん間隔 */
+	--TinyKanban-corner-radius: .3125rem; /* 角丸半径 */
+	--TinyKanban-shadow: 0 0 .0625rrem rgba(0,0,0,.13), 0 .0625rrem .1875rrem rgba(0,0,0,.2); /* 影 */
 	--TinyKanban-transition-fadein: 17ms; /* UIフェードイン時間 */
 	--TinyKanban-transition-fadeout: 125ms; /* UIフェードアウト時間 */
 }
@@ -154,9 +154,9 @@ function plugin_tinykanban_convert() {
 	display: flex;
 	flex-direction: column;
 	border: none;
-	min-height: 1.25em;
+	min-height: 1.25rem;
 	margin: 0 var(--TinyKanban-board-margin);
-	padding: 0 0 .125em;
+	padding: 0 0 .125rem;
 	height: auto;
 	box-sizing: border-box;
 	border-radius: var(--TinyKanban-corner-radius);
@@ -177,9 +177,9 @@ function plugin_tinykanban_convert() {
 	font-family: var(--TinyKanban-header-font);
 	font-size: var(--TinyKanban-header-font-size);
 	font-weight: bold;
-	line-height: 1em;
-	padding: .375em 0;
-	margin: 0 0 .0625em;
+	line-height: 1rem;
+	padding: .375rem 0;
+	margin: 0 0 .0625rem;
 	border-radius: var(--TinyKanban-corner-radius) var(--TinyKanban-corner-radius) 0 0;
 	box-sizing: border-box;
 	z-index: 1;
@@ -187,22 +187,22 @@ function plugin_tinykanban_convert() {
 }
 .__TinyKanban__ button {
 	position: absolute;
-	top: calc(50% - .625em);
-	width: 1.25em;
-	min-width: 1.25em;
-	max-width: 1.25em;
-	height: 1.25em;
-	min-height: 1.25em;
-	max-height: 1.25em;
+	top: calc(50% - .625rem);
+	width: 1.25rem;
+	min-width: 1.25rem;
+	max-width: 1.25rem;
+	height: 1.25rem;
+	min-height: 1.25rem;
+	max-height: 1.25rem;
 	padding: 0;
 	margin: 0;
 	background: #fff;
 	color: #999;
 	text-align: center;
 	vertical-align: middle;
-	line-height: 1.25em;
+	line-height: 1.25rem;
 	font-family: sans-serif;
-	font-size: 1em;
+	font-size: 1rem;
 	font-weight: bold;
 	border: none;
 	border-radius: 100%;
@@ -213,7 +213,7 @@ function plugin_tinykanban_convert() {
 	transition: opacity var(--TinyKanban-transition-fadeout);
 }
 .__TinyKanban_Header__ button {
-	right: .375em;
+	right: .375rem;
 }
 ul.__TinyKanban_List__ {
 	position: static;
@@ -229,16 +229,16 @@ ul.__TinyKanban_List__ {
 ul.__TinyKanban_List__ > li {
 	position: relative;
 	font-size: var(--TinyKanban-kanban-font-size);
-	line-height: 1em;
-	margin: var(--TinyKanban-kanban-margin) .25em;
-	padding: .125em .125em .125em 1em;
+	line-height: 1rem;
+	margin: var(--TinyKanban-kanban-margin) .25rem;
+	padding: .125rem .125rem .125rem 1rem;
 	color: var(--TinyKanban-kanban-color);
 	list-style-type: none;
 	vertical-align: middle;
 	border: none;
 	box-sizing: border-box;
 	border-radius: var(--TinyKanban-corner-radius);
-	background: linear-gradient(to right, #808080, #808080 .75em, var(--TinyKanban-kanban-bg-color) .75em, var(--TinyKanban-kanban-bg-color) 100%);
+	background: linear-gradient(to right, #808080, #808080 .75rem, var(--TinyKanban-kanban-bg-color) .75rem, var(--TinyKanban-kanban-bg-color) 100%);
 	box-shadow: var(--TinyKanban-shadow);
 	color-adjust: exact;
 }
@@ -248,21 +248,21 @@ ul.__TinyKanban_List__ > li input, ul.__TinyKanban_List__ > li input:disabled {
 	font-size: var(--TinyKanban-kanban-font-size);
 	font-feature-settings: 'palt' 1;
 	margin: 0;
-	padding: .0625em .1875em .0625em .125em;
-	line-height: 1em;
+	padding: .0625rem .1875rem .0625rem .125rem;
+	line-height: 1rem;
 	border: none;
 	box-sizing: border-box;
 	background: transparent;
 	color: var(--TinyKanban-kanban-color);
 	width: 100%;
-	border-radius: .1875em;
+	border-radius: .1875rem;
 	transition: background-color var(--TinyKanban-transition-fadeout);
 }
 ul.__TinyKanban_List__ > li input::placeholder {color:rgba(128,128,128,.5)}
 ul.__TinyKanban_List__ > li button {
 	position: absolute;
-	right: .125em;
-	margin: 0 0 0 .125em;
+	right: .125rem;
+	margin: 0 0 0 .125rem;
 }
 EOT;
 
