@@ -6,7 +6,7 @@
 
 |対象PukiWikiバージョン|対象PHPバージョン|
 |:---:|:---:|
-|PukiWiki 1.5.3 ~ 1.5.4 (UTF-8)|PHP 7.4 ~ 8.1|
+|PukiWiki 1.5.3 ~ 1.5.4 (UTF-8)|PHP 7.4 ~ 8.2|
 
 <br>
 
@@ -73,3 +73,4 @@
 |PLUGIN_TINYKANBAN_PROTECT|0 or 1|1|1：名前が空のかんばんのみ削除できる<br>0：名前付きのかんばんも削除できる|
 |PLUGIN_TINYKANBAN_ACROSS|0 or 1|0|1：ページ内に複数のかんばんボードがあるとき、かんばんがボードを跨いで移動できる<br>0：かんばんがボードを跨げない|
 |PLUGIN_TINYKANBAN_PUBLIC|0 or 1|0|1：編集権限のないユーザーにもかんばんの変更を許可<br>0：かんばんの変更には編集権限が必須|
+|PLUGIN_TINYKANBAN_NOTIMESTAMP|0 or 1|0|1：看板変更時にページのタイムスタンプを更新しない, 0：タイムスタンプを更新する|
