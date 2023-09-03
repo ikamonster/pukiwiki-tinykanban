@@ -1,7 +1,7 @@
 <?php
 /*
 PukiWiki - Yet another WikiWikiWeb clone.
-tinykanban.inc.php, v1.2.1 2022 M. Taniguchi
+tinykanban.inc.php, v1.2.2 2022 M. Taniguchi
 License: GPL v2 or (at your option) any later version
 
 簡易かんばんボードプラグイン
@@ -37,7 +37,7 @@ coumnName:Colorの組を「|」で区切って必要なだけ羅列する。必�
 
 /////////////////////////////////////////////////
 // 簡易かんばんボードプラグイン（tinykanban.inc.php）
-if (!defined('PLUGIN_TINYKANBAN_JQUERY_URL'))    define('PLUGIN_TINYKANBAN_JQUERY_URL',    'https://code.jquery.com/jquery-3.6.1.min.js');        // jQuery のURL（すでに読み込まれており不要な場合は空にする）
+if (!defined('PLUGIN_TINYKANBAN_JQUERY_URL'))    define('PLUGIN_TINYKANBAN_JQUERY_URL',    'https://code.jquery.com/jquery-3.7.1.min.js');        // jQuery のURL（すでに読み込まれており不要な場合は空にする）
 if (!defined('PLUGIN_TINYKANBAN_JQUERYUI_URL'))  define('PLUGIN_TINYKANBAN_JQUERYUI_URL',  'https://code.jquery.com/ui/1.13.2/jquery-ui.min.js'); // jQuery UI のURL（すでに読み込まれており不要な場合は空にする）
 if (!defined('PLUGIN_TINYKANBAN_ADDJS_URL'))     define('PLUGIN_TINYKANBAN_ADDJS_URL',     '');                                                   // 追加JavaScriptのURL（jQuery UIをタッチ操作に対応させるハック jquery.ui.touch-punch.js 等必要に応じて）
 if (!defined('PLUGIN_TINYKANBAN_THEME'))         define('PLUGIN_TINYKANBAN_THEME',         0);                                                    // 0：ライトテーマ, 1：ダークテーマ, 2：自動
@@ -47,9 +47,10 @@ if (!defined('PLUGIN_TINYKANBAN_MAXLENGTH'))     define('PLUGIN_TINYKANBAN_MAXLE
 if (!defined('PLUGIN_TINYKANBAN_PROTECT'))       define('PLUGIN_TINYKANBAN_PROTECT',       1);                                                    // 1：名前が空のかんばんのみ削除できる, 0：名前付きのかんばんも削除できる
 if (!defined('PLUGIN_TINYKANBAN_ACROSS'))        define('PLUGIN_TINYKANBAN_ACROSS',        0);                                                    // 1：ページ内に複数のかんばんボードがあるとき、かんばんがボードを跨いで移動できる, 0：かんばんがボードを跨げない
 if (!defined('PLUGIN_TINYKANBAN_PUBLIC'))        define('PLUGIN_TINYKANBAN_PUBLIC',        0);                                                    // 1：編集権限のないユーザーにもかんばんの変更を許可, 0：かんばんの変更には編集権限が必須
+if (!defined('PLUGIN_TINYKANBAN_NOTIMESTAMP'))   define('PLUGIN_TINYKANBAN_NOTIMESTAMP',   0);                                                    // 1：看板変更時にページのタイムスタンプを更新しない, 0：タイムスタンプを更新する
 
 function plugin_tinykanban_convert() {
-	global	$vars;
+	global	$vars, $script;
 	static	$id = 0;
 	$id++;
 
@@ -393,7 +394,7 @@ __TinyKanban__.prototype.post = async function(data) {
 		self.postTimer = null;
 		$.ajax({
 			type: 'POST',
-			url: './?plugin=tinykanban',
+			url: '${script}?plugin=tinykanban',
 			data: {
 				query:   'update',
 				reffer:  '{$page}',
@@ -424,7 +425,7 @@ __TinyKanban__.prototype.get = async function() {
 		let	wait = 1;
 		$.ajax({
 			type: 'GET',
-			url: './?plugin=tinykanban&query=get&reffer={$page}&filetime=' + self.filetime,
+			url: '${script}?plugin=tinykanban&query=get&reffer={$page}&filetime=' + self.filetime,
 			dataType: 'json',
 			timeout: {$interval}
 		}).done((data)=>{
@@ -492,7 +493,7 @@ function plugin_tinykanban_action() {
 				$id = (int)$vars['id'];
 				$postdata = '';
 				foreach (get_source($page) as $line) {
-					if (!$result && strpos($line, '#tinykanban(') === 0 && --$id === 0) {
+					if (!$result && strpos($line, '#tinykanban') === 0 && --$id === 0) {
 						// 当プラグインの引数にかんばん情報を埋め込む
 						$line = '#tinykanban("' . htmlsc($vars['columns']) . '","' . htmlspecialchars($vars['data']) . '")' . "\n";
 						$result = true;
@@ -500,7 +501,7 @@ function plugin_tinykanban_action() {
 					$postdata .= $line;
 				}
 				if ($result) {
-					page_write($page, $postdata);
+					page_write($page, $postdata, (PLUGIN_TINYKANBAN_NOTIMESTAMP != 0));
 					$result = get_filetime($page);
 				}
 			}
